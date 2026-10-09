@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>Local AI Starter - Zero-Backend Assistant Template</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <!-- Apple Touch Icon for iOS -->
+    <link rel="apple-touch-icon" href="logo.svg">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Left Sidebar (Engine & Hardware Settings) -->
+        <aside class="sidebar sidebar-left">
+            <div class="brand">
+                <div class="brand-icon">
+                    <img src="logo.svg" alt="Local AI Starter Logo"
+                        style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <h1 class="brand-title" id="brand-title">Local AI Starter</h1>
+            </div>
+
+            <!-- New Chat & Sessions Card -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 class="panel-title" style="margin: 0;" id="lbl-chat-history" data-i18n="chat-history">对话历史 (Sessions)</h2>
+                    <button id="new-chat-btn" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.8rem; width: auto;">
+                        ➕ <span data-i18n="btn-new-chat">新建对话</span>
+                    </button>
+                </div>
+                <div id="session-list" class="session-list">
+                    <!-- Loaded dynamically from IndexedDB -->
+                </div>
+            </div>
+
+            <!-- WebGPU Status -->
+            <div class="card">
+                <h2 class="panel-title" id="lbl-hw-accel" data-i18n="hw-accel">硬件加速状态</h2>
+                <div class="status-badge">
+                    <span id="webgpu-status-dot" class="status-dot"></span>
+                    <span id="webgpu-status-text" data-i18n="checking-webgpu">正在检查 WebGPU...</span>
+                </div>
+            </div>
+
+            <!-- Model Selection -->
+            <div class="card">
+                <h2 class="panel-title" id="lbl-model-config" data-i18n="model-config">模型配置</h2>
+                <div class="form-group">
+                    <label for="model-select" id="lbl-model-version" data-i18n="model-version">模型版本</label>
+                    <select id="model-select">
+                        <!-- Loaded dynamically from config.json -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Model Loading Card -->
+            <div class="card">
+                <h2 class="panel-title" id="lbl-model-load-panel" data-i18n="model-load-panel">大模型加载</h2>
+                <div class="download-progress-container">
+                    <button id="load-model-btn" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
+                        </svg>
+                        <span id="lbl-btn-load" data-i18n="btn-load">加载模型</span>
+                    </button>
+
+                    <div class="progress-header">
+                        <span id="progress-status" data-i18n="progress-wait">等待加载...</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+
+                    <div class="progress-bar-wrapper">
+                        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+                    </div>
+
+                    <div class="progress-stats">
+                        <span id="progress-bytes">0 MB / 0 MB</span>
+                        <span id="progress-speed">0 MB/s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PWA Install Banner -->
+            <div id="pwa-install-card" class="card" style="display: none;">
+                <h2 class="panel-title" id="lbl-offline-app" data-i18n="offline-app">离线应用</h2>
+                <button id="pwa-install-btn" class="btn btn-primary"
+                    style="background-color: var(--primary-hover); width: 100%;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        style="margin-right: 6px; display: inline-block; vertical-align: middle;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M16 12l-4 4-4-4M12 16V3" />
+                    </svg>
+                    <span id="lbl-btn-install" data-i18n="btn-install">安装到桌面</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Chat Workspace -->
+        <main class="chat-workspace">
+            <header class="chat-header">
+                <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                    <button id="sidebar-toggle-btn" class="sidebar-toggle" aria-label="Toggle Settings">⚙️</button>
+                    <div class="chat-model-info">
+                        <span class="chat-model-name" id="lbl-header-model-name" data-i18n="header-model-name">Gemma Web
+                            (本地运行)</span>
+                        <span class="chat-model-status" id="lbl-header-model-status"
+                            data-i18n="header-model-status">数据不上传，完全本地隐私保护</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button id="speak-toggle-btn" class="btn btn-secondary" style="width: auto;">
+                        🔊 自动朗读: 关
+                    </button>
+                    <select id="lang-select" style="width: auto;">
+                        <!-- Loaded dynamically from config.json -->
+                    </select>
+
+                    <!-- Chat Export Dropdown -->
+                    <div class="dropdown">
+                        <button id="export-dropdown-btn" class="btn btn-secondary dropdown-toggle" style="width: auto;">
+                            📥 <span data-i18n="btn-export">导出</span>
+                        </button>
+                        <div class="dropdown-content">
+                            <button id="export-md">Markdown (.md)</button>
+                            <button id="export-txt">Text (.txt)</button>
+                            <button id="export-json">JSON (.json)</button>
+                        </div>
+                    </div>
+
+                    <button id="reset-btn" class="btn btn-secondary" style="width: auto;" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5" />
+                        </svg>
+                        <span id="lbl-btn-reset" data-i18n="btn-reset">重置对话</span>
+                    </button>
+
+                    <button id="memory-toggle-btn" class="btn btn-secondary" style="width: auto;" title="Agent Memory">
+                        🧠 <span data-i18n="btn-memory">记忆</span>
+                    </button>
+
+                    <button id="voice-mode-btn" class="btn btn-secondary" style="width: auto;" title="Hands-Free Voice Agent Mode">
+                        🎙️ <span data-i18n="btn-voice-mode">语音模式</span>
+                    </button>
+
+                    <button id="persona-toggle-btn" class="sidebar-toggle" aria-label="Toggle Persona">👤</button>
+                </div>
+            </header>
+
+            <!-- Chat Message History -->
+            <div id="chat-messages" class="chat-messages">
+                <div class="message assistant">
+                    <div class="avatar" id="welcome-avatar" data-avatar-role="assistant">AI</div>
+                    <div class="message-content" id="welcome-content" data-i18n="welcome-message">
+                        Hello! I am your local AI assistant. Please click "Load Model" on the left panel first. Once
+                        loaded, we can start chatting!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Action Prompts (Prompt Templates) -->
+            <div id="prompt-templates" class="prompt-templates">
+                <!-- Loaded dynamically from config.json -->
+            </div>
+
+            <!-- Chat Form Input -->
+            <div class="chat-input-area">
+                <form id="message-form" class="chat-input-container">
+                    <button id="mic-btn" type="button" class="btn-mic" title="Voice Input" disabled>
+                        <svg viewBox="0 0 24 24">
+                            <path
+                                d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
+                        </svg>
+                    </button>
+                    <input id="user-input" class="chat-input" type="text" placeholder="输入你想说的话..." disabled required
+                        autocomplete="off">
+                    <button id="send-btn" class="btn-send" type="submit" disabled>
+                        <svg viewBox="0 0 24 24">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- System Notification Banner -->
+            <div id="sys-notification-banner" class="notification-banner" style="display: none;">
+                <span class="notification-icon">⚠️</span>
+                <span id="sys-notification-text" class="notification-text"></span>
+                <button id="sys-notification-close" class="notification-close-btn">&times;</button>
+            </div>
+
+            <!-- Performance Stats Footer -->
+            <footer class="stats-footer">
+                <div class="stat-item">
+                    <span data-i18n="stat-speed">生成速度:</span>
+                    <strong id="stat-tps">0 t/s</strong>
+                </div>
+                <div class="stat-item">
+                    <span data-i18n="stat-time">处理时间:</span>
+                    <strong id="stat-time">0 ms</strong>
+                </div>
+                <div>
+                    <span data-i18n="footer-powered">基于 Google LiteRT-LM & WebGPU 驱动</span>
+                </div>
+            </footer>
+        </main>
+
+        <!-- Right Sidebar (Persona & Customization) -->
+        <aside class="sidebar sidebar-right">
+            <div class="card" style="border: none; background: transparent; padding: 0; margin-bottom: 8px;">
+                <h2 class="panel-title"
+                    style="font-size: 1.05rem; color: var(--text-primary); text-transform: none; margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                    👤 <span data-i18n="persona-customization">Persona Customization</span>
+                </h2>
+            </div>
+
+            <div class="card">
+                <h2 class="panel-title" id="lbl-persona-selection" data-i18n="persona-selection">助手角色 (Persona)</h2>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <select id="persona-select">
+                        <!-- Loaded dynamically from config.json & personas/ -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="panel-title" id="lbl-audio-voice" data-i18n="audio-voice">朗读声音 (Voice)</h2>
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="tts-engine-select" id="lbl-tts-engine" data-i18n="lbl-tts-engine">TTS 引擎 (TTS Engine)</label>
+                    <select id="tts-engine-select">
+                        <option value="webSpeech" data-i18n="tts-engine-browser">Browser SpeechSynthesis (Local)</option>
+                        <option value="fishAudio" data-i18n="tts-engine-fish">Fish Audio API (Free s2.1-pro)</option>
+                    </select>
+                    <div class="status-badge" style="margin-top: 6px;">
+                        <span id="tts-last-used-dot" class="status-dot"></span>
+                        <span id="tts-last-used-text" style="font-size: 0.75rem; color: var(--text-secondary);" data-i18n="tts-last-used-idle">Last spoken: —</span>
+                    </div>
+                </div>
+
+                <!-- Browser Speech Synthesis Options -->
+                <div id="browser-voice-container" class="form-group" style="margin-bottom: 0;">
+                    <select id="voice-select">
+                        <option value="">Default Voice</option>
+                    </select>
+                    <div id="voice-warning" class="voice-warning" style="display: none; margin-top: 6px;"
+                        data-i18n="voice-warning-text">
+                        ⚠️ Online voices require internet and may occasionally timeout.
+                    </div>
+                </div>
+
+                <!-- Fish Audio Cloud API Options -->
+                <div id="fish-audio-container" class="fish-audio-settings" style="display: none;">
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label for="fish-api-key" id="lbl-fish-api-key" data-i18n="lbl-fish-api-key">Fish Audio API Key</label>
+                        <div style="position: relative;">
+                            <input type="password" id="fish-api-key" placeholder="Bearer Key..." autocomplete="off" style="width: 100%; padding-right: 32px;" />
+                            <button id="toggle-fish-key-btn" type="button" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem; padding: 2px;" title="Show/Hide API Key">👁️</button>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label for="fish-model" id="lbl-fish-model" data-i18n="lbl-fish-model">Model Header</label>
+                            <span class="free-badge" data-i18n="free-promo-badge">🎉 Free API</span>
+                        </div>
+                        <input type="text" id="fish-model" value="s2.1-pro-free" placeholder="s2.1-pro-free" style="width: 100%;" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label for="fish-ref-id" id="lbl-fish-ref-id" data-i18n="lbl-fish-ref-id">Reference Voice ID (Optional)</label>
+                        <input type="text" id="fish-ref-id" placeholder="Optional model reference ID" style="width: 100%;" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <div class="fish-local-only-notice" data-i18n="fish-local-only-notice">⚠️ Fish Audio cloud TTS only works when running this app via "npm start" (local server). On GitHub Pages or other static hosting, it will fall back to your browser's built-in voice.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="flex: 1; display: flex; flex-direction: column; min-height: 200px;">
+                <h2 class="panel-title" id="lbl-sys-settings" data-i18n="sys-settings">系统设定 (角色偏好)</h2>
+                <div class="form-group" style="flex: 1; display: flex; flex-direction: column; margin-bottom: 0;">
+                    <textarea id="system-prompt" style="flex: 1; min-height: 120px;"></textarea>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Agent Memory Modal -->
+    <div id="memory-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🧠 Agent Memory (Long-term Context)</h3>
+                <button id="close-memory-modal" class="btn-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p class="memory-intro" data-i18n="memory-intro">
+                    The AI automatically remembers durable facts about you (name, preferences, important dates) as you chat, and injects them into every future session. Remove anything below you don't want kept.
+                </p>
+                <div id="memory-list" class="memory-list">
+                    <!-- Memory items loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Voice Mode Fullscreen Visualizer Overlay -->
+    <div id="voice-overlay" class="voice-overlay" style="display: none;">
+        <div class="voice-overlay-content">
+            <button id="exit-voice-btn" class="btn-close-voice">&times; Exit Voice Mode</button>
+            <div class="visualizer-container">
+                <div id="voice-ring-outer" class="voice-ring outer-ring"></div>
+                <div id="voice-ring-inner" class="voice-ring inner-ring">
+                    <div id="voice-avatar-icon" class="voice-avatar-icon">🎙️</div>
+                </div>
+            </div>
+            <div class="voice-status-container">
+                <h2 id="voice-status-text" class="voice-status-text">Listening...</h2>
+                <p id="voice-subtext" class="voice-subtext">Speak naturally — VAD will auto-detect when you stop</p>
+                <p id="voice-transcript" class="voice-transcript"></p>
+            </div>
+            <div id="voice-transcript-log" class="voice-transcript-log"></div>
+        </div>
+    </div>
+
+    <!-- On-device debug console for mobile testing: open the app with ?debug appended -->
+    <script>
+        if (new URLSearchParams(location.search).has('debug')) {
+            const erudaScript = document.createElement('script');
+            erudaScript.src = 'https://cdn.jsdelivr.net/npm/eruda';
+            erudaScript.onload = () => eruda.init();
+            document.head.appendChild(erudaScript);
+        }
+    </script>
+
+    <!-- Script Entrypoint -->
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>

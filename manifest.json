@@ -1,0 +1,17 @@
+{
+  "name": "Local AI Starter",
+  "short_name": "LocalAI",
+  "description": "Zero-backend browser-based private AI assistant powered by LiteRT-LM & WebGPU.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ]
+}

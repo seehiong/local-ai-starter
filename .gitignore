@@ -1,0 +1,16 @@
+# Claude Code workspace
+.claude/
+
+# Locally hosted model weights (see docs/MOBILE-TESTING.md tip) — never commit
+models/
+*.litertlm
+
+# Local HTTPS certificates (mkcert)
+*.pem
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/

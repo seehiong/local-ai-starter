@@ -1,0 +1,157 @@
+{
+  "appName": "Local AI Starter",
+  "defaultModel": "gemma-4-e2b",
+  "defaultLanguage": "en",
+  "defaultPersona": "assistant",
+  "theme": {
+    "primary": "#3b82f6",
+    "primaryHover": "#2563eb",
+    "bgGradientStart": "#0f172a",
+    "bgGradientEnd": "#1e293b",
+    "sidebarBg": "rgba(30, 41, 59, 0.7)",
+    "chatBg": "rgba(15, 23, 42, 0.5)",
+    "text": "#f8fafc"
+  },
+  "models": [
+    {
+      "id": "gemma-4-e2b",
+      "name": "Gemma 4 E2B IT (Web-Optimized)",
+      "url": "https://huggingface.co/litert-community/gemma-4-E2B-it-litert-lm/resolve/main/gemma-4-E2B-it-web.litertlm",
+      "sizeMB": 1250,
+      "mobileFriendly": true
+    },
+    {
+      "id": "gemma-4-e4b",
+      "name": "Gemma 4 E4B IT (Web-Optimized)",
+      "url": "https://huggingface.co/litert-community/gemma-4-E4B-it-litert-lm/resolve/main/gemma-4-E4B-it-web.litertlm",
+      "sizeMB": 2450,
+      "mobileFriendly": false
+    }
+  ],
+  "personas": [
+    {
+      "id": "assistant",
+      "name": {
+        "en": "General AI Assistant",
+        "zh": "通用 AI 助手",
+        "ja": "ローカル AI アシスタント",
+        "ko": "일반 AI 비서",
+        "ta": "உள்ளூர் AI உதவியாளர்",
+        "ms": "Pembantu AI Tempatan"
+      }
+    },
+    {
+      "id": "language-tutor",
+      "name": {
+        "en": "Language Tutor",
+        "zh": "语言翻译官",
+        "ja": "語学チューター",
+        "ko": "언어 튜터",
+        "ta": "மொழி ஆசிரியர்",
+        "ms": "Tutor Bahasa"
+      }
+    },
+    {
+      "id": "travel-guide",
+      "name": {
+        "en": "Travel Guide",
+        "zh": "旅行向导",
+        "ja": "旅行ガイド",
+        "ko": "여행 가이드",
+        "ta": "பயண வழிகாட்டி",
+        "ms": "Panduan Perjalanan"
+      }
+    },
+    {
+      "id": "coding-helper",
+      "name": {
+        "en": "Coding Helper",
+        "zh": "编程小助手",
+        "ja": "コーディング助手",
+        "ko": "코딩 도우미",
+        "ta": "குறியீட்டு உதவியாளர்",
+        "ms": "Pembantu Pengekodan"
+      }
+    },
+    {
+      "id": "interviewer",
+      "name": {
+        "en": "Interviewer",
+        "zh": "面试官",
+        "ja": "面接官",
+        "ko": "면접관",
+        "ta": "நேர்காணல் செய்பவர்",
+        "ms": "Pewawancara"
+      }
+    },
+    {
+      "id": "math-tutor",
+      "name": {
+        "en": "Math Tutor",
+        "zh": "数学老师",
+        "ja": "数学の先生",
+        "ko": "수학 선생님",
+        "ta": "கணித ஆசிரியர்",
+        "ms": "Tutor Matematik"
+      }
+    }
+  ],
+  "languages": [
+    { "code": "en", "label": "🌐 English" },
+    { "code": "zh", "label": "🌐 中文 (Mandarin)" },
+    { "code": "ja", "label": "🌐 日本語 (Japanese)" },
+    { "code": "ko", "label": "🌐 한국어 (Korean)" },
+    { "code": "ta", "label": "🌐 தமிழ் (Tamil)" },
+    { "code": "ms", "label": "🌐 Bahasa Melayu (Malay)" }
+  ],
+  "promptTemplates": [
+    {
+      "id": "explain",
+      "label": {
+        "en": "💡 Explain",
+        "zh": "💡 解释",
+        "ja": "💡 説明",
+        "ko": "💡 설명",
+        "ta": "💡 விளக்கு",
+        "ms": "💡 Terangkan"
+      },
+      "template": "Please explain the following concept in a clear and simple manner: "
+    },
+    {
+      "id": "summarize",
+      "label": {
+        "en": "📝 Summarize",
+        "zh": "📝 总结",
+        "ja": "📝 要約",
+        "ko": "📝 요약",
+        "ta": "📝 சுருக்கம்",
+        "ms": "📝 Ringkaskan"
+      },
+      "template": "Provide a concise summary of the following text, highlighting the key points: "
+    },
+    {
+      "id": "correct",
+      "label": {
+        "en": "✍️ Edit/Correct",
+        "zh": "✍️ 纠错润色",
+        "ja": "✍️ 文法添削",
+        "ko": "✍️ 맞춤법 검사",
+        "ta": "✍️ திருத்து",
+        "ms": "✍️ Betulkan"
+      },
+      "template": "Review and correct any grammatical errors or awkward phrasing in this text: "
+    },
+    {
+      "id": "quiz",
+      "label": {
+        "en": "❓ Quiz Me",
+        "zh": "❓ 测验我",
+        "ja": "❓ クイズ",
+        "ko": "❓ 퀴즈 내기",
+        "ta": "❓ வினாடி வினா",
+        "ms": "❓ Kuiz Saya"
+      },
+      "template": "Generate a short 3-question multiple choice quiz with answers based on the following topic: "
+    }
+  ]
+}

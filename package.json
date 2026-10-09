@@ -1,0 +1,14 @@
+{
+  "name": "local-ai-starter",
+  "version": "1.0.1",
+  "description": "Local AI Starter with WebGPU LiteRT & Fish Audio TTS",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5"
+  }
+}
